@@ -27,7 +27,7 @@ VALIDATE () {
 cp mongo.repo /etc/yum.repos.d/mongo.repo
 VALIDATE $? "Copying Mongo Repo"
 
-DNF INSTALL mongodb-org -y
+dnf INSTALL mongodb-org -y
 VALIDATE $? "Installing MongoDB Server"
 
 systemctl enable mongod
