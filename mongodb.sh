@@ -20,21 +20,21 @@ VALIDATE () {
       echo -e "$R $2 installation failed $N" | tee -a $LOGS_FILE
       exit 1
     else
-        echo -e "$G $2 installation successful $N"
+        echo -e "$G $2 installation successful $N" | tee -a $LOGS_FILE
     fi
 }
 
 cp mongo.repo /etc/yum.repos.d/mongo.repo
 VALIDATE $? "Copying Mongo Repo"
 
-dnf install mongodb-org -y
+dnf install mongodb-org -y &>> $LOGS_FILE
 VALIDATE $? "Installing MongoDB Server"
 
-systemctl enable mongod
+systemctl enable mongod &>> $LOGS_FILE
 VALIDATE $? "Enabling MongoDB Service"
 
 sed -i 's/127.0.0.1/0.0.0.0/g' /etc/mongod.conf
 VALIDATE $? "Allowing romote connections"
 
-systemctl restart mongod
+systemctl restart mongod &>> $LOGS_FILE
 VALIDATE $? "Restarting MongoDB Service"
