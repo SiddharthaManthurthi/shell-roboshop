@@ -1,11 +1,11 @@
 #! /bin/bash
 
-SG_ID= "sg-028a0f9feae2f961e"
-AMI_ID= "ami-0220d79f3f480ecf5"
+SG_ID="sg-028a0f9feae2f961e"
+AMI_ID="ami-0220d79f3f480ecf5"
 
 for instance in $@
 do
-  INSTANCE_ID= $(aws ec2 run-instances \
+  INSTANCE_ID=$(aws ec2 run-instances \
    --image-id $AMI_ID \
    --instance-type t3.micro \
    --security-group-ids $SG_ID\
