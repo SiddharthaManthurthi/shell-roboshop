@@ -56,9 +56,7 @@ VALIDATE $? "Cleaning old code"
 
 unzip /tmp/catalogue.zip &>> $LOGS_FILE
 VALIDATE $? "Unzippping Catalogue code"
-
-
-cd /app 
+ 
 npm install  &>> $LOGS_FILE
 VALIDATE $? "Installing NodeJS Dependencies"
 
