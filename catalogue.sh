@@ -33,7 +33,7 @@ VALIDATE $? "Enabling NodeJS 20 Module"
 dnf install nodejs -y &>> $LOGS_FILE
 VALIDATE $? "Installing NodeJS 20"
 
-useradd --system --home /app --shell /sbin/nologin --comment "roboshop system user" roboshop
+useradd --system --home /app --shell /sbin/nologin --comment "roboshop system user" roboshop &>> $LOGS_FILE
 VALIDATE $? "Adding sytem User"
 
 mkdir /app 
