@@ -42,6 +42,7 @@ if [ $? -ne 0 ]; then
 else
     echo -e "$Y roboshop user already exists, skipping $N" | tee -a $LOGS_FILE
 fi
+
 mkdir -p /app 
 VALIDATE $? "Creating  Directory"
 
@@ -68,12 +69,12 @@ systemctl enable catalogue  &>> $LOGS_FILE
 systemctl start catalogue
 VALIDATE $? "Starting and enabling Catalogue Service"
 
-CP $SCRIPT_DIR/mongorepo /etc/yum.repos.d/mongo.repo
-
+cp $SCRIPT_DIR/catalogue.service /etc/systemd/system/mongo.repo
 dnf install mongodb-mongosh -y &>> $LOGS_FILE
 
 
 INDEX=$(mongosh --host $MONGODB_HOST --eval --quiet 'db.getMongo().getDBNames().indexof("catalogue")' )
+
 if [ $INDEX -le 0 ]; then
    mongosh --host $MONGODB_HOST </app/db/master-data.js
     VALIDATE $? "Loading Catalogue Data"
