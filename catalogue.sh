@@ -6,7 +6,7 @@ LOGS_FILE="$LOGS_FOLDER/$0.log"
 R="\e[31m"
 G="\e[32m"
 Y="\e[33m"
-B="\e[0m"
+N="\e[0m"
 SCRIPT_DIR=$(pwd)
 MONGODB_HOST="mongodb.siddharthais.online"
 
@@ -69,11 +69,11 @@ systemctl enable catalogue  &>> $LOGS_FILE
 systemctl start catalogue
 VALIDATE $? "Starting and enabling Catalogue Service"
 
-cp $SCRIPT_DIR/mongo.repo /etc/yum.repos.d/mongo.repo &>> $LOGS_FILE
+cp $SCRIPT_DIR/mongo.repo /etc/yum.repos.d/mongo.repo
 dnf install mongodb-mongosh -y &>> $LOGS_FILE
 
 
-INDEX=$(mongosh --host $MONGODB_HOST --quiet --eval'db.getMongo().getDBNames().indexof("catalogue")')
+INDEX=$(mongosh --host $MONGODB_HOST --quiet --eval 'db.getMongo().getDBNames().indexOf("catalogue")')
 
 if [ $INDEX -le 0 ]; then
    mongosh --host $MONGODB_HOST </app/db/master-data.js
