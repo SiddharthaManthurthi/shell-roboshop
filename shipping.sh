@@ -1,82 +1,92 @@
-#! /bin/bash
+#!/bin/bash
 
-USERID=$(id -u)
 LOGS_FOLDER="/var/log/shell-roboshop"
 LOGS_FILE="$LOGS_FOLDER/$0.log"
+
 R="\e[31m"
 G="\e[32m"
 Y="\e[33m"
 N="\e[0m"
-SCRIPT_DIR=$pwd
-MYSQL_HOST="mysql.siddharthais.online"
+
+SCRIPT_DIR=$PWD
+MYSQL_HOST=mysql.siddharthais.online
+
+
+
+USERID=$(id -u)
 
 if [ $USERID -ne 0 ]; then
-  echo -e "$R Please run this script with root user access $N" | tee -a $LOGS_FILE
-  exit 1
+  echo -e "$R Please run this script with root user access $N" | tee -a $LOGS_FILE
+  exit 1
 fi
 
-mkdir -p $LOGS_FOLDER
+mkdir -p  $LOGS_FOLDER
 
-VALIDATE () {
-   if [ $1 -ne 0 ]; then
-      echo -e "$2 ... $R installation failed $N" | tee -a $LOGS_FILE
-      exit 1
-    else
-        echo -e "$2 ... $G installation successful $N" | tee -a $LOGS_FILE
-    fi
+VALIDATE(){
+   if [ $1 -ne 0 ]; then
+       echo -e " $2 ...$R FAILURE  $N" | tee -a $LOGS_FILE
+       exit 1
+   else
+       echo -e " $2 ... $G SUCCESS $N" | tee -a $LOGS_FILE
+   fi
 }
 
 dnf install maven -y &>> $LOGS_FILE
-VALIDATE $? "Installing Maven"
+VALIDATE $? "Installing Maven ..."
 
 id roboshop &>> $LOGS_FILE
 if [ $? -ne 0 ]; then
-   useradd --system --home /app --shell /sbin/nologin --comment "roboshop system user" roboshop &>> $LOGS_FILE
-   VALIDATE $? "Adding sytem User"
+    useradd --system --home /app --shell /sbin/nologin --comment "roboshop system user" roboshop &>> $LOGS_FILE
+    VALIDATE $> "Creating system user"
 else
-    echo -e "$Y roboshop user already exists, skipping $N" | tee -a $LOGS_FILE
+   echo -e "Already exist ... $Y Skipping it $N"
+
 fi
 
-mkdir -p /app 
-VALIDATE $? "Creating APP Directory"
+mkdir -p /app &>> $LOGS_FILE
+VALIDATE $? "App directory"
 
-curl -o /tmp/shipping.zip https://roboshop-artifacts.s3.amazonaws.com/shipping-v3.zip  &>> $LOGS_FILE
-VALIDATE $? "Downloading shipping App"
+curl -L -o /tmp/shipping.zip https://roboshop-artifacts.s3.amazonaws.com/shipping-v3.zip &>> $LOGS_FILE
+VALIDATE $? "Download the code"
 
-cd /app
+cd /app &>> $LOGS_FILE
 VALIDATE $? "Moving to app directory"
 
 rm -rf /app/*
-VALIDATE $? "Cleaning old code"
+VALIDATE $? "Removing existing code"
 
 unzip /tmp/shipping.zip &>> $LOGS_FILE
-VALIDATE $? "Unzippping shipping code"
+VALIDATE $? "Unzip the code"
 
-cd /app 
 mvn clean package &>> $LOGS_FILE
-VALIDATE $? "Building shipping code"
+VALIDATE $? "Clean the default package"
 
-mv target/shipping-1.0.jar shipping.jar 
-VALIDATE $? "Renaming shipping jar file"
+mv target/shipping-1.0.jar shipping.jar &>> $LOGS_FILE
+VALIDATE $? "Renaming jar file"
 
-cp $SCRIPT_DIR/shipping.service /etc/systemd/system/shipping.service
-VALIDATE $? "Copying shipping Service File"
+cp $SCRIPT_DIR/shipping.service /etc/systemd/system/shipping.service &>> $LOGS_FILE
+VALIDATE $? "Copying shipping service"
 
-dnf install mysql -y &>> $LOGS_FILE
-VALIDATE $? "Installing MySQL"
+systemctl daemon-reload &>> $LOGS_FILE
+VALIDATE $? "Reload the service"
+
+systemctl enable shipping &>> $LOGS_FILE
+VALIDATE $? "Enable the shipping service"
+
+systemctl start shipping &>> $LOGS_FILE
+VALIDATE $? "Start the shipping service"
+
+dnf install mysql -y  &>> $LOGS_FILE
+VALIDATE $? "Install mysql"
 
 mysql -h $MYSQL_HOST -uroot -pRoboShop@1 -e 'use cities'
-
 if [ $? -ne 0 ]; then
-
-    mysql -h $MYSQL_HOST -uroot -pRoboShop@1 < /app/db/schema.sql 
-    mysql -h $MYSQL_HOST -uroot -pRoboShop@1 < /app/db/app-user.sql
-    mysql -h $MYSQL_HOST -uroot -pRoboShop@1 < /app/db/master-data.sql 
-    VALIDATE $? "Loading shipping schema and data"
+  mysql -h $MYSQL_HOST -uroot -pRoboShop@1 < /app/db/schema.sql
+  mysql -h $MYSQL_HOST -uroot -pRoboShop@1 < /app/db/app-user.sql
+  mysql -h $MYSQL_HOST -uroot -pRoboShop@1 < /app/db/master-data.sql
+  VALIDATE $? "Loaded data into mysql"
 else
-    echo -e "$Y shipping schema is already present, skipping $N" | tee -a $LOGS_FILE
+  echo -e "data is already loaded ...$Y skipping $N"
 fi
-
-systemctl enable shipping 
-systemctl start shipping
-VALIDATE $? "Starting and enabling shipping"
+systemctl restart shipping &>> $LOGS_FILE
+VALIDATE $? "Restart the shipping service"
