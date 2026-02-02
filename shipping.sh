@@ -11,37 +11,35 @@ N="\e[0m"
 SCRIPT_DIR=$PWD
 MYSQL_HOST=mysql.siddharthais.online
 
-
-
 USERID=$(id -u)
 
 if [ $USERID -ne 0 ]; then
-  echo -e "$R Please run this script with root user access $N" | tee -a $LOGS_FILE
-  exit 1
+   echo -e "$R Please run this script with root user access $N" | tee -a $LOGS_FILE
+   exit 1
 fi
 
-mkdir -p  $LOGS_FOLDER
+mkdir -p $LOGS_FOLDER
 
 VALIDATE(){
-   if [ $1 -ne 0 ]; then
-       echo -e " $2 ...$R FAILURE  $N" | tee -a $LOGS_FILE
-       exit 1
-   else
-       echo -e " $2 ... $G SUCCESS $N" | tee -a $LOGS_FILE
-   fi
-}
+    if [ $1 -ne 0 ]; then
+        echo -e " $2 ...$R FAILURE $N" | tee -a $LOGS_FILE
+        exit 1
+    else
+        echo -e " $2 ... $G SUCCESS $N" | tee -a $LOGS_FILE
+    fi
+    }
 
 dnf install maven -y &>> $LOGS_FILE
 VALIDATE $? "Installing Maven ..."
 
 id roboshop &>> $LOGS_FILE
-if [ $? -ne 0 ]; then
-    useradd --system --home /app --shell /sbin/nologin --comment "roboshop system user" roboshop &>> $LOGS_FILE
-    VALIDATE $> "Creating system user"
-else
-   echo -e "Already exist ... $Y Skipping it $N"
+    if [ $? -ne 0 ]; then
+         useradd --system --home /app --shell /sbin/nologin --comment "roboshop system user" roboshop &>> $LOGS_FILE
+         VALIDATE $? "Creating system user"
+    else
+        echo -e "Already exist ... $Y Skipping it $N"
 
-fi
+    fi
 
 mkdir -p /app &>> $LOGS_FILE
 VALIDATE $? "App directory"
@@ -76,17 +74,17 @@ VALIDATE $? "Enable the shipping service"
 systemctl start shipping &>> $LOGS_FILE
 VALIDATE $? "Start the shipping service"
 
-dnf install mysql -y  &>> $LOGS_FILE
+dnf install mysql -y &>> $LOGS_FILE
 VALIDATE $? "Install mysql"
 
 mysql -h $MYSQL_HOST -uroot -pRoboShop@1 -e 'use cities'
-if [ $? -ne 0 ]; then
-  mysql -h $MYSQL_HOST -uroot -pRoboShop@1 < /app/db/schema.sql
-  mysql -h $MYSQL_HOST -uroot -pRoboShop@1 < /app/db/app-user.sql
-  mysql -h $MYSQL_HOST -uroot -pRoboShop@1 < /app/db/master-data.sql
-  VALIDATE $? "Loaded data into mysql"
-else
-  echo -e "data is already loaded ...$Y skipping $N"
-fi
+    if [ $? -ne 0 ]; then
+       mysql -h $MYSQL_HOST -uroot -pRoboShop@1 < /app/db/schema.sql
+       mysql -h $MYSQL_HOST -uroot -pRoboShop@1 < /app/db/app-user.sql
+       mysql -h $MYSQL_HOST -uroot -pRoboShop@1 < /app/db/master-data.sql
+       VALIDATE $? "Loaded data into mysql"
+    else
+       echo -e "data is already loaded ...$Y skipping $N"
+    fi
 systemctl restart shipping &>> $LOGS_FILE
 VALIDATE $? "Restart the shipping service"
