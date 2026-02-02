@@ -62,6 +62,11 @@ VALIDATE $? "Renaming shipping jar file"
 cp $SCRIPT_DIR/shipping.service /etc/systemd/system/shipping.service
 VALIDATE $? "Copying shipping Service File"
 
+systemctl daemon-reload
+systemctl enable shipping 
+systemctl start shipping
+VALIDATE $? "Starting and enabling shipping Service"
+
 dnf install mysql -y &>> $LOGS_FILE
 VALIDATE $? "Installing MySQL"
 
