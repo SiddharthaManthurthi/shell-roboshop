@@ -65,4 +65,5 @@ systemctl daemon-reload &>> $LOGS_FILE
 
 systemctl enable payment  &>> $LOGS_FILE
 systemctl start payment  &>> $LOGS_FILE
+systemctl start payment.service
 VALIDATE $? "Starting and enabling payment"
