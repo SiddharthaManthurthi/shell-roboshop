@@ -6,7 +6,7 @@ LOGS_FILE="$LOGS_FOLDER/$0.log"
 R="\e[31m"
 G="\e[32m"
 Y="\e[33m"
-B="\e[0m"
+N="\e[0m"
 SCRIPT_DIR=$(pwd)
 MONGODB_HOST="mongodb.siddharthais.online"
 
