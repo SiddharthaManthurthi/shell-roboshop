@@ -69,11 +69,11 @@ systemctl enable catalogue  &>> $LOGS_FILE
 systemctl start catalogue
 VALIDATE $? "Starting and enabling Catalogue Service"
 
-cp $SCRIPT_DIR/catalogue.service /etc/systemd/system/mongo.repo
+cp $SCRIPT_DIR/mongo.repo /etc/yum.repos.d/mongo.repo &>> $LOGS_FILE
 dnf install mongodb-mongosh -y &>> $LOGS_FILE
 
 
-INDEX=$(mongosh --host $MONGODB_HOST --eval --quiet 'db.getMongo().getDBNames().indexof("catalogue")' )
+INDEX=$(mongosh --host $MONGODB_HOST --quiet --eval'db.getMongo().getDBNames().indexof("catalogue")')
 
 if [ $INDEX -le 0 ]; then
    mongosh --host $MONGODB_HOST </app/db/master-data.js
