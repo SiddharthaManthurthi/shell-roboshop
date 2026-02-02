@@ -74,9 +74,9 @@ mysql -h $MYSQL_HOST -uroot -pRoboShop@1 -e 'use cities'
 
 if [ $? -ne 0 ]; then
 
-    mysql -h $MYSQL_HOST -uroot -pRoboShop@1 < /app/db/schema.sql &>> $LOGS_FILE
-    mysql -h $MYSQL_HOST -uroot -pRoboShop@1 < /app/db/app-user.sql &>> $LOGS_FILE
-    mysql -h $MYSQL_HOST -uroot -pRoboShop@1 < /app/db/master-data.sql &>> $LOGS_FILE
+    mysql -h $MYSQL_HOST -uroot -pRoboShop@1 < /app/db/schema.sql 
+    mysql -h $MYSQL_HOST -uroot -pRoboShop@1 < /app/db/app-user.sql
+    mysql -h $MYSQL_HOST -uroot -pRoboShop@1 < /app/db/master-data.sql 
     VALIDATE $? "Loading shipping schema and data"
 else
     echo -e "$Y shipping schema is already present, skipping $N" | tee -a $LOGS_FILE
