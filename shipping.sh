@@ -1,81 +1,82 @@
-#!/bin/bash
+#! /bin/bash
 
 USERID=$(id -u)
-LOGS_FOLDER="/var/log/shell-roboshop"
+LOGS_FOLDER="/var/log/mongodb"
 LOGS_FILE="$LOGS_FOLDER/$0.log"
 R="\e[31m"
 G="\e[32m"
 Y="\e[33m"
 N="\e[0m"
-SCRIPT_DIR=$PWD
-MYSQL_HOST=mysql.siddharthais.online
+SCRIPT_DIR=$(pwd)
+MYSQL_HOST="mysql.siddharthais.online"
 
 if [ $USERID -ne 0 ]; then
-    echo -e "$R Please run this script with root user access $N" | tee -a $LOGS_FILE
-    exit 1
+  echo -e "$R Please run this script with root user access $N" | tee -a $LOGS_FILE
+  exit 1
 fi
 
 mkdir -p $LOGS_FOLDER
 
-VALIDATE(){
-    if [ $1 -ne 0 ]; then
-        echo -e "$2 ... $R FAILURE $N" | tee -a $LOGS_FILE
-        exit 1
+VALIDATE () {
+   if [ $1 -ne 0 ]; then
+      echo -e "$2... $R installation failed $N" | tee -a $LOGS_FILE
+      exit 1
     else
-        echo -e "$2 ... $G SUCCESS $N" | tee -a $LOGS_FILE
+        echo -e "$2... $G installation successful $N" | tee -a $LOGS_FILE
     fi
 }
 
-dnf install maven -y &>>$LOGS_FILE
+dnf install maven -y &>> $LOGS_FILE
 VALIDATE $? "Installing Maven"
 
-id roboshop &>>$LOGS_FILE
+id roboshop &>> $LOGS_FILE
 if [ $? -ne 0 ]; then
-    useradd --system --home /app --shell /sbin/nologin --comment "roboshop system user" roboshop &>>$LOGS_FILE
-    VALIDATE $? "Creating system user"
+   useradd --system --home /app --shell /sbin/nologin --comment "roboshop system user" roboshop &>> $LOGS_FILE
+   VALIDATE $? "Adding sytem User"
 else
-    echo -e "Roboshop user already exist ... $Y SKIPPING $N"
+    echo -e "$Y roboshop user already exists, skipping $N" | tee -a $LOGS_FILE
 fi
 
 mkdir -p /app 
-VALIDATE $? "Creating app directory"
+VALIDATE $? "Creating APP Directory"
 
-curl -o /tmp/shipping.zip https://roboshop-artifacts.s3.amazonaws.com/shipping-v3.zip  &>>$LOGS_FILE
-VALIDATE $? "Downloading shipping code"
+curl -L -o /tmp/shipping.zip https://roboshop-artifacts.s3.amazonaws.com/shipping-v3.zip  &>> $LOGS_FILE
+VALIDATE $? "Downloading shipping App"
 
 cd /app
 VALIDATE $? "Moving to app directory"
 
 rm -rf /app/*
-VALIDATE $? "Removing existing code"
+VALIDATE $? "Cleaning old code"
 
-unzip /tmp/shipping.zip &>>$LOGS_FILE
-VALIDATE $? "Uzip shipping code"
+unzip /tmp/shipping.zip &>> $LOGS_FILE
+VALIDATE $? "Unzippping shipping code"
 
 cd /app 
-mvn clean package &>>$LOGS_FILE
-VALIDATE $? "Installing and Building shipping"
+mvn clean package &>> $LOGS_FILE
+VALIDATE $? "Building shipping code"
 
 mv target/shipping-1.0.jar shipping.jar 
-VALIDATE $? "Moving and Renaming shipping"
+VALIDATE $? "Renaming shipping jar file"
 
 cp $SCRIPT_DIR/shipping.service /etc/systemd/system/shipping.service
-VALIDATE $? "Created systemctl service"
+VALIDATE $? "Copying shipping Service File"
 
-dnf install mysql -y  &>>$LOGS_FILE
+dnf install mysql -y &>> $LOGS_FILE
 VALIDATE $? "Installing MySQL"
 
-mysql -h $MYSQL_HOST -uroot -pRoboShop@1 -e 'use cities'
+mysql -h $MYSQL_HOST -uroot -pRoboShop@1 -e 'use cities' &>> $LOGS_FILE
+
 if [ $? -ne 0 ]; then
 
-    mysql -h $MYSQL_HOST -uroot -pRoboShop@1 < /app/db/schema.sql &>>$LOGS_FILE
-    mysql -h $MYSQL_HOST -uroot -pRoboShop@1 < /app/db/app-user.sql &>>$LOGS_FILE
-    mysql -h $MYSQL_HOST -uroot -pRoboShop@1 < /app/db/master-data.sql &>>$LOGS_FILE
-    VALIDATE $? "Loaded data into MySQL"
+    mysql -h $MYSQL_HOST -uroot -pRoboShop@1 < /app/db/schema.sql &>> $LOGS_FILE
+    mysql -h $MYSQL_HOST -uroot -pRoboShop@1 < /app/db/app-user.sql &>> $LOGS_FILE
+    mysql -h $MYSQL_HOST -uroot -pRoboShop@1 < /app/db/master-data.sql &>> $LOGS_FILE
+    VALIDATE $? "Loading shipping schema and data"
 else
-    echo -e "data is already loaded ... $Y SKIPPING $N"
+    echo -e "$Y shipping schema is already present, skipping $N" | tee -a $LOGS_FILE
 fi
 
-systemctl enable shipping &>>$LOGS_FILE
+systemctl enable shipping 
 systemctl start shipping
-VALIDATE $? "Enabled and started shipping"
+VALIDATE $? "Starting and enabling shipping"
