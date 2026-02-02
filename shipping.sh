@@ -7,7 +7,7 @@ R="\e[31m"
 G="\e[32m"
 Y="\e[33m"
 N="\e[0m"
-SCRIPT_DIR=$(pwd)
+SCRIPT_DIR=$pwd
 MYSQL_HOST="mysql.siddharthais.online"
 
 if [ $USERID -ne 0 ]; then
@@ -40,7 +40,7 @@ fi
 mkdir -p /app 
 VALIDATE $? "Creating APP Directory"
 
-curl -L -o /tmp/shipping.zip https://roboshop-artifacts.s3.amazonaws.com/shipping-v3.zip  &>> $LOGS_FILE
+curl -o /tmp/shipping.zip https://roboshop-artifacts.s3.amazonaws.com/shipping-v3.zip  &>> $LOGS_FILE
 VALIDATE $? "Downloading shipping App"
 
 cd /app
