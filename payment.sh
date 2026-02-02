@@ -8,7 +8,6 @@ G="\e[32m"
 Y="\e[33m"
 B="\e[0m"
 SCRIPT_DIR=$(pwd)
-MONGODB_HOST="mongodb.siddharthais.online"
 MYSQL_HOST="mysql.siddharthais.online"
 
 if [ $USERID -ne 0 ]; then
