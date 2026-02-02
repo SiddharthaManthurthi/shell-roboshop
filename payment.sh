@@ -28,7 +28,7 @@ VALIDATE () {
 }
 
 dnf install python3 gcc python3-devel -y &>> $LOGS_FILE
-VALIDATE $? "Installing Maven"
+VALIDATE $? "Installing python3"
 
 id roboshop &>> $LOGS_FILE
 if [ $? -ne 0 ]; then
@@ -38,7 +38,6 @@ else
     echo -e "$Y roboshop user already exists, skipping $N" | tee -a $LOGS_FILE
 fi
 
-useradd --system --home /app --shell /sbin/nologin --comment "roboshop system user" roboshop
 
 mkdir -p /app 
 VALIDATE $? "Creating  Directory"
