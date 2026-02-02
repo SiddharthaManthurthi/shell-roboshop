@@ -6,9 +6,8 @@ LOGS_FILE="$LOGS_FOLDER/$0.log"
 R="\e[31m"
 G="\e[32m"
 Y="\e[33m"
-B="\e[0m"
+N="\e[0m"
 SCRIPT_DIR=$(pwd)
-MONGODB_HOST="mongodb.siddharthais.online"
 MYSQL_HOST="mysql.siddharthais.online"
 
 if [ $USERID -ne 0 ]; then
@@ -20,10 +19,10 @@ mkdir -p $LOGS_FOLDER
 
 VALIDATE () {
    if [ $1 -ne 0 ]; then
-      echo -e "$R $2 installation failed $N" | tee -a $LOGS_FILE
+      echo -e "$2... $R installation failed $N" | tee -a $LOGS_FILE
       exit 1
     else
-        echo -e "$G $2 installation successful $N" | tee -a $LOGS_FILE
+        echo -e "$2... $G installation successful $N" | tee -a $LOGS_FILE
     fi
 }
 
@@ -38,12 +37,10 @@ else
     echo -e "$Y roboshop user already exists, skipping $N" | tee -a $LOGS_FILE
 fi
 
-useradd --system --home /app --shell /sbin/nologin --comment "roboshop system user" roboshop
-
 mkdir -p /app 
-VALIDATE $? "Creating  Directory"
+VALIDATE $? "Creating APP Directory"
 
-curl -L -o /tmp/shipping.zip https://roboshop-artifacts.s3.amazonaws.com/shipping-v3.zip 
+curl -L -o /tmp/shipping.zip https://roboshop-artifacts.s3.amazonaws.com/shipping-v3.zip  &>> $LOGS_FILE
 VALIDATE $? "Downloading shipping App"
 
 cd /app
@@ -52,11 +49,11 @@ VALIDATE $? "Moving to app directory"
 rm -rf /app/*
 VALIDATE $? "Cleaning old code"
 
-unzip /tmp/shipping.zip
+unzip /tmp/shipping.zip &>> $LOGS_FILE
 VALIDATE $? "Unzippping shipping code"
 
 cd /app 
-mvn clean package 
+mvn clean package &>> $LOGS_FILE
 VALIDATE $? "Building shipping code"
 
 mv target/shipping-1.0.jar shipping.jar 
