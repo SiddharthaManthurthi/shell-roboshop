@@ -1,7 +1,7 @@
 #! /bin/bash
 
 USERID=$(id -u)
-LOGS_FOLDER="/var/log/mongodb"
+LOGS_FOLDER="/var/log/shell-roboshop"
 LOGS_FILE="$LOGS_FOLDER/$0.log"
 R="\e[31m"
 G="\e[32m"
@@ -65,7 +65,7 @@ VALIDATE $? "Copying shipping Service File"
 dnf install mysql -y &>> $LOGS_FILE
 VALIDATE $? "Installing MySQL"
 
-mysql -h $MYSQL_HOST -uroot -pRoboShop@1 -e 'use cities' &>> $LOGS_FILE
+mysql -h $MYSQL_HOST -uroot -pRoboShop@1 -e 'use cities'
 
 if [ $? -ne 0 ]; then
 
