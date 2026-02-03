@@ -72,9 +72,11 @@ dnf install mysql -y &>> $LOGS_FILE
 VALIDATE $? "Install mysql"
 
 mysql -h $MYSQL_HOST -uroot -pRoboShop@1 < /app/db/schema.sql &>> $LOGS_FILE
+VALIDATE $? "Creating shipping schema"
 mysql -h $MYSQL_HOST -uroot -pRoboShop@1 < /app/db/app-user.sql &>> $LOGS_FILE
+VALIDATE $? "Creating shipping app user"
 mysql -h $MYSQL_HOST -uroot -pRoboShop@1 < /app/db/master-data.sql &>> $LOGS_FILE
-VALIDATE $? "Loaded data into mysql"
+VALIDATE $? "Loading shipping master data"
 
 systemctl enable shipping &>> $LOGS_FILE
 VALIDATE $? "Enable the shipping service"
