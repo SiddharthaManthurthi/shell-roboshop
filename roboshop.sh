@@ -22,7 +22,7 @@ do
          --query 'Reservations[].Instances[].PublicIpAddress' \
          --output text
        )
-       RECORD_NAME="$$DOMAIN_NAME" #siddharthais.online
+       RECORD_NAME="$DOMAIN_NAME" #siddharthais.online
   else 
         IP=$(
             aws ec2 describe-instances \
