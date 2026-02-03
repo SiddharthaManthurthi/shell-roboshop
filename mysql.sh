@@ -33,5 +33,5 @@ VALIDATE $? " Enabling and starting MySQL Service"
 
 #get the password from the user
 
-mysql_secure_installation --set-root-pass RoboShop@123 &>> $LOGS_FILE
+mysql_secure_installation --set-root-pass RoboShop@1 &>> $LOGS_FILE
 VALIDATE $? "Setting MySQL root password"

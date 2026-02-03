@@ -65,25 +65,18 @@ VALIDATE $? "Renaming jar file"
 cp $SCRIPT_DIR/shipping.service /etc/systemd/system/shipping.service &>> $LOGS_FILE
 VALIDATE $? "Copying shipping service"
 
-systemctl daemon-reload &>> $LOGS_FILE
-VALIDATE $? "Reload the service"
-
 dnf install mysql -y &>> $LOGS_FILE
 VALIDATE $? "Install mysql"
 
-mysql -h $MYSQL_HOST -uroot -pRoboShop@1 -e 'use cities' 
-    if [ $? -ne 0 ]; then
-       mysql -h $MYSQL_HOST -uroot -pRoboShop@1 < /app/db/schema.sql &>> $LOGS_FILE
-       VALIDATE $? "Creating schema"
+mysql -h $MYSQL_HOST -uroot -pRoboShop@1 < /app/db/schema.sql &>> $LOGS_FILE
+VALIDATE $? "Creating schema"
 
-       mysql -h $MYSQL_HOST -uroot -pRoboShop@1 < /app/db/app-user.sql &>> $LOGS_FILE
-       VALIDATE $? "Creating app user"
+mysql -h $MYSQL_HOST -uroot -pRoboShop@1 < /app/db/app-user.sql &>> $LOGS_FILE
+VALIDATE $? "Creating app user"
 
-       mysql -h $MYSQL_HOST -uroot -pRoboShop@1 < /app/db/master-data.sql &>> $LOGS_FILE
-       VALIDATE $? "Loading data into mysql"
-    else
-       echo -e "data is already loaded ...$Y skipping $N"
-fi
+mysql -h $MYSQL_HOST -uroot -pRoboShop@1 < /app/db/master-data.sql &>> $LOGS_FILE
+VALIDATE $? "Loading data into mysql"
+
 
 systemctl enable shipping &>> $LOGS_FILE
 VALIDATE $? "Enable the shipping service"
